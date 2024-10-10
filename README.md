@@ -1,2 +1,2 @@
-bind -r '\C-s'
+bind -r '\C-s'\
 stty -ixon
