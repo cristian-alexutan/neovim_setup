@@ -4,29 +4,6 @@ vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 vim.opt.signcolumn = "yes"
 
--- Set statusline with mode and file information
-local current_mode = {
-    n  = 'NORMAL ',
-    v  = 'VISUAL ',
-    V  = 'V·Line ',
-    ["\22"] = 'V·Block ',  -- <C-V> (Ctrl+V)
-    i  = 'INSERT ',
-    R  = 'R ',
-    Rv = 'V·Replace ',
-    c  = 'Command ',
-}
-
-function StatuslineMode()
-  local mode = vim.api.nvim_get_mode().mode  -- Get current mode
-  return string.upper(current_mode[mode] or mode)
-end
-
-vim.opt.statusline = table.concat({
-    "%{v:lua.StatuslineMode()}",
-    "%F",
-    "%=",
-    "%l, %c      "
-})
 
 -- Set number and relative number
 vim.opt.number = true
@@ -60,14 +37,17 @@ vim.api.nvim_set_keymap('n', '<C-t>', ':NvimTreeToggle<CR>', { noremap = true, s
 -- Plugin management using vim-plug
 vim.cmd [[
   call plug#begin()
+
+    Plug 'nvim-lualine/lualine.nvim'
   
     " nvim-treesitter for syntax highlighting and code parsing
     Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 
     " catppuccin theme
     Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
+    Plug 'sainnhe/gruvbox-material'
 
-    Plug 'nvim-tree/nvim-web-devicons' " optional
+    Plug 'nvim-tree/nvim-web-devicons'
     Plug 'nvim-tree/nvim-tree.lua'
     Plug 'neovim/nvim-lspconfig'
 
@@ -79,6 +59,50 @@ vim.cmd [[
 
   call plug#end()
 ]]
+
+require('lualine').setup {
+  options = {
+    icons_enabled = true,
+    theme = 'auto',
+    component_separators = { left = '', right = ''},
+    section_separators = { left = '', right = ''},
+    disabled_filetypes = {
+      statusline = { 'packer', 'NvimTree' },
+      winbar = { 'packer', 'NvimTree' },
+    },
+    ignore_focus = {},
+    always_divide_middle = true,
+    globalstatus = false,
+    refresh = {
+      statusline = 1000,
+      tabline = 1000,
+      winbar = 1000,
+    }
+  },
+  sections = {
+    lualine_a = {'mode'},
+    lualine_b = {'branch', 'diff', 'diagnostics'},
+    lualine_c = {'filename'},
+    lualine_x = {'encoding', 'fileformat', 'filetype'},
+    lualine_y = {'progress'},
+    lualine_z = {'location'}
+  },
+  inactive_sections = {
+    lualine_a = {},
+    lualine_b = {},
+    lualine_c = {'filename'},
+    lualine_x = {'location'},
+    lualine_y = {},
+    lualine_z = {}
+  },
+  tabline = {},
+  winbar = {},
+  inactive_winbar = {},
+  extensions = {}
+}
+
+-- Set colorscheme
+vim.cmd [[colorscheme gruvbox-material]]
 
 
 -- optionally enable 24-bit colour
@@ -103,8 +127,6 @@ require("nvim-tree").setup({
   },
 })
 
--- Set colorscheme
-vim.cmd [[colorscheme catppuccin-frappe]]
 
 -- Open nvim-tree automatically in new tabs
 vim.api.nvim_create_autocmd("TabNew", {
